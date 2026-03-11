@@ -1,0 +1,20 @@
+name: Build iOS App
+on: [workflow_dispatch]
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build Xcode Project
+        run: |
+          xcodebuild archive -project Tube.xcodeproj -scheme Tube -archivePath unsigned.xcarchive -configuration Release CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
+      - name: Create IPA
+        run: |
+          mkdir -p Payload
+          cp -r unsigned.xcarchive/Products/Applications/Tube.app Payload/
+          zip -r Tube.ipa Payload
+      - name: Upload IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: Tube-App
+          path: Tube.ipa
